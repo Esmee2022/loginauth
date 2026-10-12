@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Authentication Portal | SAAMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="bg-circle bg1"></div>
+    <div class="bg-circle bg2"></div>
+    <div class="bg-circle bg3"></div>
+
+    <!-- Alert Toast Notification -->
+    <div id="toastNotification" class="toast-notification"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-card" id="authCard">
+
+            <!-- Login Form -->
+            <div class="form-panel login-panel">
+                <div class="logo">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h1>SAAMS Portal</h1>
+                <p class="subtitle">Secure Identity & Access Management</p>
+
+                <form id="loginForm">
+                    <!-- Username or Email -->
+                    <div class="input-group">
+                        <div class="electric-glow"></div>
+                        <div class="electric-border"></div>
+                        <input type="text" id="loginIdentifier" placeholder=" " autocomplete="username" required>
+                        <label for="loginIdentifier">
+                            Username or Email
+                        </label>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-group">
+                        <div class="electric-glow"></div>
+                        <div class="electric-border"></div>
+                        <input type="password" id="loginPassword" placeholder=" " autocomplete="current-password"
+                            required>
+                        <label for="loginPassword">
+                            Password
+                        </label>
+                        <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <div class="options">
+                        <label class="checkbox">
+                            <input type="checkbox" id="rememberMe">
+                            Remember session
+                        </label>
+                        <a href="javascript:void(0)" onclick="showForgotNotice()">
+                            Forgot Credentials?
+                        </a>
+                    </div>
+                    <button type="submit" class="main-btn" id="loginBtn">
+                        Sign In
+                    </button>
+                </form>
+
+                <div class="switch-area">
+                    <span>
+                        Need an account?
+                    </span>
+                    <button type="button" class="switch-circle" onclick="flipCard()" title="Switch to Registration">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div class="form-panel signup-panel">
+                <div class="logo">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h1>Create Account</h1>
+                <p class="subtitle">
+                    Register with Argon2id & 2FA Security
+                </p>
+
+                <form id="signupForm">
+                    <!-- Full Name -->
+                    <div class="input-group">
+                        <div class="electric-glow"></div>
+                        <div class="electric-border"></div>
+                        <input type="text" id="signupName" placeholder=" " autocomplete="name" required>
+                        <label for="signupName">
+                            Full Name
+                        </label>
+                    </div>
+
+                    <!-- Username -->
+                    <div class="input-group">
+                        <div class="electric-glow"></div>
+                        <div class="electric-border"></div>
+                        <input type="text" id="signupUsername" placeholder=" " autocomplete="username" required>
+                        <label for="signupUsername">
+                            Username
+                        </label>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="input-group">
+                        <div class="electric-glow"></div>
+                        <div class="electric-border"></div>
+                        <input type="email" id="signupEmail" placeholder=" " autocomplete="email" required>
+                        <label for="signupEmail">
+                            Email Address
+                        </label>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="input-group">
+                        <div class="electric-glow"></div>
+                        <div class="electric-border"></div>
+                        <input type="password" id="signupPassword" placeholder=" " autocomplete="new-password"
+                            required minlength="12">
+                        <label for="signupPassword">
+                            Password (Min 12 chars, Mix)
+                        </label>
+                        <button type="button" class="password-toggle" onclick="togglePassword('signupPassword', this)">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="input-group">
+                        <div class="electric-glow"></div>
+                        <div class="electric-border"></div>
+                        <input type="password" id="confirmPassword" placeholder=" " autocomplete="new-password"
+                            required>
+                        <label for="confirmPassword">
+                            Confirm Password
+                        </label>
+                    </div>
+
+                    <button type="submit" class="main-btn" id="signupBtn">Create Account</button>
+                </form>
+
+                <div class="switch-area">
+                    <span>
+                        Already registered?
+                    </span>
+                    <button type="button" class="switch-circle" onclick="flipCard()" title="Switch to Login">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2FA Verification Modal -->
+    <div id="twoFactorModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-card">
+            <div class="logo">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <h2>Two-Factor Challenge</h2>
+            <p class="subtitle" id="twoFactorSubtitle">Enter the 6-digit code from your authenticator app.</p>
+
+            <!-- Mode 1: TOTP Code -->
+            <form id="totpForm">
+                <div class="input-group" id="totpInputGroup">
+                    <div class="electric-glow"></div>
+                    <div class="electric-border"></div>
+                    <input type="text" id="totpCode" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" placeholder=" " autocomplete="one-time-code" required>
+                    <label for="totpCode">6-Digit Code (e.g. 123456)</label>
+                </div>
+                <button type="submit" class="main-btn" id="verifyTotpBtn">Verify Code</button>
+            </form>
+
+            <!-- Mode 2: Emergency Recovery Code -->
+            <form id="recoveryForm" style="display: none; margin-top: 15px;">
+                <div class="input-group">
+                    <div class="electric-glow"></div>
+                    <div class="electric-border"></div>
+                    <input type="text" id="recoveryCode" placeholder=" " autocomplete="off" required>
+                    <label for="recoveryCode">Recovery Code (XXXXX-XXXXX)</label>
+                </div>
+                <button type="submit" class="main-btn" id="verifyRecoveryBtn">Use Recovery Code</button>
+            </form>
+
+            <div class="modal-switch-action">
+                <a href="javascript:void(0)" id="toggleRecoveryLink" onclick="toggleRecoveryMode()">Lost authenticator? Use backup code</a>
+                <br>
+                <a href="javascript:void(0)" onclick="closeTwoFactorModal()" style="color: #a0aec0; margin-top: 8px; display: inline-block;">Cancel</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

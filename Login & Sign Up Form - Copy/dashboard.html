@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAAMS Management Console</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.css">
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #283548;
+            --border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #0072ff;
+            --primary-glow: rgba(0, 114, 255, 0.4);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation */
+        .topbar {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.2px;
+        }
+
+        .brand i {
+            color: var(--primary);
+            font-size: 22px;
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .role-badge {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .role-administrator { background: #7c3aed; color: #fff; }
+        .role-admin { background: #2563eb; color: #fff; }
+        .role-manager { background: #059669; color: #fff; }
+        .role-inputer { background: #475569; color: #e2e8f0; }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-logout:hover {
+            color: #fff;
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: #131c2e;
+            border-right: 1px solid var(--border);
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            color: #fff;
+            background: var(--bg-card);
+        }
+
+        .nav-item.active {
+            color: #fff;
+            background: var(--primary);
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 28px 36px;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Cards and Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .card h3 {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Buttons & Forms */
+        .btn-action {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .btn-action:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        th {
+            background: #172033;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #222f44;
+            color: #e2e8f0;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .status-disabled { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .status-draft { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+        .status-approved { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .status-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 14px 22px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.info { border-left: 4px solid var(--primary); }
+
+        .recovery-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            letter-spacing: 1px;
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="brand">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>SAAMS Security Console</span>
+        </div>
+        <div class="user-nav">
+            <span id="navDisplayName" style="font-size: 14px; font-weight: 600;">Loading...</span>
+            <span id="navRoleBadge" class="role-badge">...</span>
+            <button class="btn-logout" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="nav-item active" onclick="switchTab('overview')"><i class="fa-solid fa-chart-pie"></i> Overview</div>
+            <div class="nav-item" onclick="switchTab('records')"><i class="fa-solid fa-folder-open"></i> Operational Records</div>
+            <div class="nav-item" id="navUsers" style="display: none;" onclick="switchTab('users')"><i class="fa-solid fa-users-gear"></i> User Management</div>
+            <div class="nav-item" onclick="switchTab('security')"><i class="fa-solid fa-key"></i> 2FA & Credentials</div>
+            <div class="nav-item" id="navBackups" style="display: none;" onclick="switchTab('backups')"><i class="fa-solid fa-cloud-arrow-up"></i> Supabase Backup & DR</div>
+            <div class="nav-item" id="navAudit" style="display: none;" onclick="switchTab('audit')"><i class="fa-solid fa-list-check"></i> Audit Logs</div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+
+            <!-- TAB 1: OVERVIEW -->
+            <section id="tab-overview">
+                <div class="page-header">
+                    <h1>System Overview & Identity Governance</h1>
+                    <p>Current session credentials, account authority, and local security health.</p>
+                </div>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3><i class="fa-solid fa-id-badge" style="color: var(--primary);"></i> Authenticated Identity</h3>
+                        <p style="margin-top: 8px; font-size: 13px; color: var(--text-muted);">Username: <strong id="cardUsername" style="color:#fff;">-</strong></p>
+                        <p style="margin-top: 4px; font-size: 13px; color: var(--text-muted);">Email: <strong id="cardEmail" style="color:#fff;">-</strong></p>
+                        <p style="margin-top: 4px; font-size: 13px; color: var(--text-muted);">Assigned Role: <strong id="cardRole" style="color:#fff;">-</strong></p>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fa-solid fa-mobile-screen-button" style="color: #10b981;"></i> Two-Factor Status</h3>
+                        <p id="card2faText" style="margin-top: 8px; font-size: 14px; font-weight: 600;">Checking...</p>
+                        <button class="btn-action" id="card2faBtn" style="margin-top: 12px;" onclick="switchTab('security')">Configure 2FA</button>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fa-solid fa-database" style="color: #8b5cf6;"></i> Local Database State</h3>
+                        <p style="margin-top: 8px; font-size: 13px; color: #34d399;"><i class="fa-solid fa-circle-check"></i> Primary SQLite (WAL Mode)</p>
+                        <p style="margin-top: 4px; font-size: 13px; color: var(--text-muted);">Latency: <strong>&lt; 2ms (Local Sovereign)</strong></p>
+                        <p style="margin-top: 4px; font-size: 13px; color: var(--text-muted);">Supabase DR: <strong style="color:#38bdf8;">Encrypted Storage Active</strong></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i> Role Authority Matrix Summary</h3>
+                    <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;" id="roleDescription">
+                        Loading your role permissions...
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: RECORDS -->
+            <section id="tab-records" style="display: none;">
+                <div class="page-header">
+                    <h1>Operational Records & Workflows</h1>
+                    <p>Create, submit, and manage operational enterprise records.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fa-solid fa-plus-circle" style="color: var(--primary);"></i> Create New Record</h3>
+                        <form id="recordForm" onsubmit="handleCreateRecord(event)">
+                            <div class="form-group">
+                                <label>Record Title</label>
+                                <input type="text" id="recTitle" required placeholder="e.g. Q4 Financial Intake">
+                            </div>
+                            <div class="form-group">
+                                <label>Category</label>
+                                <input type="text" id="recCategory" required placeholder="e.g. Audit, Intake, Maintenance">
+                            </div>
+                            <div class="form-group">
+                                <label>Details / Payload Content</label>
+                                <textarea id="recContent" rows="3" required placeholder="Enter confidential record body..."></textarea>
+                            </div>
+                            <button type="submit" class="btn-action"><i class="fa-solid fa-floppy-disk"></i> Save Draft Record</button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fa-solid fa-circle-info" style="color: #38bdf8;"></i> Record Governance Rules</h3>
+                        <ul style="font-size: 13px; color: var(--text-muted); line-height: 1.7; padding-left: 18px;">
+                            <li><strong>Inputer:</strong> Can draft new records and edit their own drafts.</li>
+                            <li><strong>Manager:</strong> Can review all submitted records and execute <em>Approve</em> or <em>Reject</em> workflows.</li>
+                            <li><strong>Admin / Administrator:</strong> Full oversight and operational audit access.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-list"></i> Operational Records Log</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Created By</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody">
+                            <tr><td colspan="6" style="text-align: center;">Loading records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 3: USER MANAGEMENT -->
+            <section id="tab-users" style="display: none;">
+                <div class="page-header">
+                    <h1>User Management & Access Provisioning</h1>
+                    <p>Governance of authorized accounts according to role permission boundaries.</p>
+                </div>
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3><i class="fa-solid fa-user-plus" style="color: var(--primary);"></i> Provision User Account</h3>
+                    <form id="createUserForm" onsubmit="handleCreateUser(event)" style="display: grid; grid-template-columns: repeat(4, 1fr) 140px; gap: 12px; align-items: flex-end;">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Full Name</label>
+                            <input type="text" id="newUserFullName" required placeholder="Full Name">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>Username</label>
+                            <input type="text" id="newUsername" required placeholder="Username">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>Email Address</label>
+                            <input type="email" id="newUserEmail" required placeholder="user@corp.com">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>Role</label>
+                            <select id="newUserRole">
+                                <option value="inputer">Inputer</option>
+                                <option value="manager" id="roleOptManager">Manager</option>
+                                <option value="admin" id="roleOptAdmin">Admin</option>
+                                <option value="administrator" id="roleOptAdministrator">Administrator</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-action" style="height: 42px;"><i class="fa-solid fa-plus"></i> Create</button>
+                    </form>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">* Managers can provision Inputer accounts. Administrators can provision all tiers. Default password will be randomly generated or set.</p>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-users"></i> System Accounts Registry</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Display Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="7" style="text-align: center;">Loading users...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 4: 2FA & SECURITY -->
+            <section id="tab-security" style="display: none;">
+                <div class="page-header">
+                    <h1>Two-Factor Authentication & Cryptographic Enrollment</h1>
+                    <p>Bind an RFC 6238 authenticator application and generate emergency recovery codes.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fa-solid fa-qrcode" style="color: var(--primary);"></i> Authenticator App Setup</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+                            Scan this QR code using Google Authenticator, Microsoft Authenticator, or 1Password.
+                        </p>
+                        <div id="enrollmentArea" style="display: none; text-align: center;">
+                            <img id="qrCodeImg" style="border-radius: 8px; margin: 10px 0; background: #fff; padding: 8px; max-width: 200px;" alt="TOTP QR Code">
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Secret Key: <code id="rawSecretCode" style="color:#38bdf8;">-</code></p>
+                            
+                            <form onsubmit="handleConfirm2FA(event)" style="margin-top: 10px;">
+                                <div class="form-group" style="max-width: 240px; margin: 0 auto 12px auto;">
+                                    <label>Enter 6-Digit Code To Activate</label>
+                                    <input type="text" id="confirm2faToken" maxlength="6" pattern="[0-9]{6}" required placeholder="e.g. 123456" style="text-align: center; font-size: 18px; letter-spacing: 4px;">
+                                </div>
+                                <button type="submit" class="btn-action"><i class="fa-solid fa-shield-check"></i> Activate 2FA</button>
+                            </form>
+                        </div>
+                        <button class="btn-action" id="btnStartEnroll" onclick="start2FAEnrollment()"><i class="fa-solid fa-gear"></i> Enroll Authenticator App</button>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fa-solid fa-key" style="color: #f59e0b;"></i> Single-Use Emergency Recovery Codes</h3>
+                        <p style="font-size: 13px; color: var(--text-muted);">
+                            These 8 emergency backup codes allow sign-in if your authenticator device is lost. Each code is burned immediately upon use.
+                        </p>
+                        <div id="recoveryCodesDisplay" class="recovery-grid" style="display: none;"></div>
+                        <p id="recoveryNotice" style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
+                            Recovery codes are generated during 2FA enrollment.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: BACKUP & DR (ADMINISTRATOR) -->
+            <section id="tab-backups" style="display: none;">
+                <div class="page-header">
+                    <h1>Automated Encrypted Supabase Cloud Backup & Disaster Recovery</h1>
+                    <p>Client-side AES-256-GCM envelope encryption with offsite cloud persistence.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fa-solid fa-cloud" style="color: var(--primary);"></i> Supabase Disaster Recovery Target</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Supabase URL: <strong style="color: #38bdf8;">https://yzjalvfrgfvyjknpjrju.supabase.co</strong></p>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Bucket: <strong style="color: #fff;">encrypted-backups (Private)</strong></p>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Encryption: <strong style="color: #10b981;">AES-256-GCM (DEK + KEK Envelope)</strong></p>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-action" id="btnManualBackup" onclick="triggerManualBackup()"><i class="fa-solid fa-play"></i> Run Encrypted Backup Now</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fa-solid fa-vial-circle-check" style="color: #8b5cf6;"></i> Point-In-Time Restoration Test Drill</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                            Downloads the most recent encrypted backup from Supabase, decrypts using Master Key, and verifies SHA-256 integrity into an isolated test database.
+                        </p>
+                        <button class="btn-secondary" id="btnTestRestore" onclick="testRestoreDrill()"><i class="fa-solid fa-rotate-left"></i> Run Verification Restore Drill</button>
+                        <div id="restoreDrillOutput" style="font-size: 12px; margin-top: 10px; color: #34d399;"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Historical Backup Transmissions</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Backup ID</th>
+                                <th>Started At</th>
+                                <th>Status</th>
+                                <th>Target File Name</th>
+                                <th>SHA-256 Checksum</th>
+                                <th>Size</th>
+                            </tr>
+                        </thead>
+                        <tbody id="backupsTableBody">
+                            <tr><td colspan="6" style="text-align: center;">Loading backup history...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 6: AUDIT LOGS (ADMINISTRATOR) -->
+            <section id="tab-audit" style="display: none;">
+                <div class="page-header">
+                    <h1>Tamper-Evident Security Audit Logs</h1>
+                    <p>Comprehensive event history recording user authentication, privilege actions, and system events.</p>
+                </div>
+                <div class="card">
+                    <h3><i class="fa-solid fa-shield-virus"></i> Security Event Stream</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Actor</th>
+                                <th>Role</th>
+                                <th>Event Type</th>
+                                <th>Action</th>
+                                <th>Outcome</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTableBody">
+                            <tr><td colspan="7" style="text-align: center;">Loading audit logs...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="dashboardToast" class="toast"></div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

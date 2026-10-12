@@ -1,0 +1,23 @@
+{
+  "name": "saams-auth-app",
+  "version": "2.0.0",
+  "description": "Secure User Identification, Two-Factor Authentication, Role-Based Access Control, and Automated Supabase Backup System",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "seed:admin": "node scripts/seed_admin.js",
+    "test": "node tests/security_test_suite.js",
+    "backup:drill": "node backup_service.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "docx": "^9.9.0",
+    "dotenv": "^18.0.7",
+    "express": "^5.3.0",
+    "hash-wasm": "^4.12.0",
+    "otpauth": "^9.5.2",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4"
+  }
+}
